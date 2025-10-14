@@ -71,6 +71,19 @@ editor.commands.replaceAll('替换后的文本');
 - `replace(text: string)`: 替换当前匹配项
 - `replaceAll(text: string)`: 替换所有匹配项
 
+## Style
+
+该插件没有默认的样式。你可以根据需要自定义样式,例如:
+
+```less
+.find-replace-highlight {
+  background-color: yellow;
+  &.find-replace-highlight-active {
+    background-color: orange;
+  }
+}
+```
+
 ## 开发
 
 ### 构建项目
