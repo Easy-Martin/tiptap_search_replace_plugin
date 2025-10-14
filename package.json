@@ -1,6 +1,6 @@
 {
   "name": "tiptap_search_replace_plugin",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "A search and replace plugin for Tiptap editor",
   "main": "dist/tiptap-search-replace-plugin.umd.js",
   "module": "dist/tiptap-search-replace-plugin.es.js",
@@ -13,9 +13,20 @@
     "build": "tsc",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "publishConfig": {
+    "registry": "https://registry.npmjs.org/"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Easy-Martin/tiptap_search_replace_plugin.git"
+  },
+  "homepage": "https://github.com/Easy-Martin/tiptap_search_replace_plugin",
+  "bugs": {
+    "url": "https://github.com/Easy-Martin/tiptap_search_replace_plugin/issues"
+  },
+  "keywords": ["tiptap", "editor", "search", "replace", "plugin"],
+  "author": "Huang Jingjing",
+  "license": "MIT",
   "dependencies": {
     "@tiptap/core": "^3.6.6",
     "@tiptap/pm": "^3.6.6",
