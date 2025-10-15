@@ -32,7 +32,6 @@ const findReplacePlugin = () => {
                     case "FIND": {
                         const { query } = action;
                         const matches = findMatchesInDocument(tr.doc, query);
-                        console.log(matches);
                         return {
                             ...prevState,
                             query,
@@ -60,13 +59,17 @@ const findReplacePlugin = () => {
                                 const newSelection = new prosemirror_state_1.TextSelection($from, $to);
                                 view.dispatch(view.state.tr.setSelection(newSelection));
                                 // --- 修复结束 ---
-                                const element = document.querySelector(`.${exports.ACTIVE_HIGHLIGHT_CLASS}`);
-                                if (element) {
-                                    element.scrollIntoView({
-                                        behavior: "smooth",
-                                        block: "nearest",
-                                    });
-                                }
+                                // 延迟执行滚动操作，确保DOM已更新
+                                setTimeout(() => {
+                                    const element = document.querySelector(`.${exports.ACTIVE_HIGHLIGHT_CLASS}`);
+                                    if (element) {
+                                        // 使用更可靠的滚动设置
+                                        element.scrollIntoView({
+                                            behavior: "smooth",
+                                            block: "center", // 改为center以确保元素在视图中央
+                                        });
+                                    }
+                                }, 100); // 增加延迟时间确保DOM更新完成
                             }
                         }, 0);
                         return {

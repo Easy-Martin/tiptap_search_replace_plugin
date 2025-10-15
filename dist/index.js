@@ -21,7 +21,6 @@ const SearchReplacePlugin = core_1.Extension.create({
             find: (query) => ({ tr, dispatch }) => {
                 if (dispatch) {
                     const action = { type: "FIND", query };
-                    console.log(action);
                     tr.setMeta(findReplacePlugin_1.findReplacePluginKey, { action });
                 }
                 return true;

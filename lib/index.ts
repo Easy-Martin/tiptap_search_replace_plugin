@@ -45,7 +45,6 @@ const SearchReplacePlugin = Extension.create({
         ({ tr, dispatch }) => {
           if (dispatch) {
             const action: FindReplaceAction = { type: "FIND", query };
-            console.log(action);
             tr.setMeta(findReplacePluginKey, { action });
           }
           return true;
