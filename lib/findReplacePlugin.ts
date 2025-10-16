@@ -19,9 +19,7 @@ export interface FindReplaceState {
 }
 
 // --- 插件实现 ---
-export const findReplacePluginKey = new PluginKey<FindReplaceState>(
-  "findReplace"
-);
+export const findReplacePluginKey = new PluginKey<FindReplaceState>("findReplace");
 
 // 生成随机 CSS 类名以避免冲突
 const HIGHLIGHT_BASE_CLASS = "find-replace-highlight";
@@ -42,7 +40,7 @@ export const findReplacePlugin = () => {
         };
       },
 
-      apply(tr, prevState, state) {
+      apply(tr, prevState) {
         const meta = tr.getMeta(findReplacePluginKey);
         const action: FindReplaceAction | undefined = meta?.action;
 
@@ -86,9 +84,7 @@ export const findReplacePlugin = () => {
 
                 // 延迟执行滚动操作，确保DOM已更新
                 setTimeout(() => {
-                  const element = document.querySelector(
-                    `.${ACTIVE_HIGHLIGHT_CLASS}`
-                  );
+                  const element = document.querySelector(`.${ACTIVE_HIGHLIGHT_CLASS}`);
                   if (element) {
                     // 使用更可靠的滚动设置
                     element.scrollIntoView({
@@ -131,11 +127,7 @@ export const findReplacePlugin = () => {
       decorations(state) {
         const pluginState = findReplacePluginKey.getState(state);
 
-        if (
-          !pluginState ||
-          !pluginState.query ||
-          pluginState.matches.length === 0
-        ) {
+        if (!pluginState || !pluginState.query || pluginState.matches.length === 0) {
           return DecorationSet.empty;
         }
 
@@ -145,9 +137,7 @@ export const findReplacePlugin = () => {
             match.from,
             match.to,
             {
-              class: isActive
-                ? `${HIGHLIGHT_CLASS} ${ACTIVE_HIGHLIGHT_CLASS}`
-                : HIGHLIGHT_CLASS,
+              class: isActive ? `${HIGHLIGHT_CLASS} ${ACTIVE_HIGHLIGHT_CLASS}` : HIGHLIGHT_CLASS,
             },
             { inclusive: true }
           );
@@ -180,10 +170,7 @@ export const findReplacePlugin = () => {
  * @param query 要查找的文本
  * @returns 匹配项的位置数组 { from, to }
  */
-function findMatchesInDocument(
-  doc: Node,
-  query: string
-): Array<{ from: number; to: number }> {
+function findMatchesInDocument(doc: Node, query: string): Array<{ from: number; to: number }> {
   const matches: Array<{ from: number; to: number }> = [];
   if (!query || query.trim() === "") return matches;
 

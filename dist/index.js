@@ -9,9 +9,7 @@ const state_1 = require("@tiptap/pm/state");
 const SearchReplacePlugin = core_1.Extension.create({
     name: "findReplace",
     addOptions() {
-        return {
-            openPanel: "Mod-f",
-        };
+        return { openPanel: "Mod-f" };
     },
     addProseMirrorPlugins() {
         return [(0, findReplacePlugin_1.findReplacePlugin)()];
@@ -25,27 +23,26 @@ const SearchReplacePlugin = core_1.Extension.create({
                 }
                 return true;
             },
-            findNext: () => ({ tr, dispatch, state }) => {
-                var _a, _b;
+            findNext: () => ({ tr, dispatch, view }) => {
                 if (dispatch) {
                     const action = {
                         type: "NAVIGATE",
                         direction: 1,
                     };
+                    tr;
                     // 传递 view 以便在插件中使用
-                    tr.setMeta("view", (_b = (_a = state.plugins.find((p) => p.spec.key === findReplacePlugin_1.findReplacePluginKey)) === null || _a === void 0 ? void 0 : _a.spec) === null || _b === void 0 ? void 0 : _b.view);
+                    tr.setMeta("view", view);
                     tr.setMeta(findReplacePlugin_1.findReplacePluginKey, { action });
                 }
                 return true;
             },
-            findPrevious: () => ({ tr, dispatch, state }) => {
-                var _a, _b;
+            findPrevious: () => ({ tr, dispatch, view }) => {
                 if (dispatch) {
                     const action = {
                         type: "NAVIGATE",
                         direction: -1,
                     };
-                    tr.setMeta("view", (_b = (_a = state.plugins.find((p) => p.spec.key === findReplacePlugin_1.findReplacePluginKey)) === null || _a === void 0 ? void 0 : _a.spec) === null || _b === void 0 ? void 0 : _b.view);
+                    tr.setMeta("view", view);
                     tr.setMeta(findReplacePlugin_1.findReplacePluginKey, { action });
                 }
                 return true;

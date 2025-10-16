@@ -1,10 +1,6 @@
 // FindReplace.ts
 import { Extension } from "@tiptap/core";
-import {
-  findReplacePlugin,
-  findReplacePluginKey,
-  FindReplaceAction,
-} from "./findReplacePlugin";
+import { findReplacePlugin, findReplacePluginKey, FindReplaceAction } from "./findReplacePlugin";
 import { TextSelection } from "@tiptap/pm/state";
 
 declare module "@tiptap/core" {
@@ -29,9 +25,7 @@ const SearchReplacePlugin = Extension.create({
   name: "findReplace",
 
   addOptions() {
-    return {
-      openPanel: "Mod-f",
-    };
+    return { openPanel: "Mod-f" };
   },
 
   addProseMirrorPlugins() {
@@ -52,18 +46,15 @@ const SearchReplacePlugin = Extension.create({
 
       findNext:
         () =>
-        ({ tr, dispatch, state }) => {
+        ({ tr, dispatch, view }) => {
           if (dispatch) {
             const action: FindReplaceAction = {
               type: "NAVIGATE",
               direction: 1,
             };
+            tr;
             // 传递 view 以便在插件中使用
-            tr.setMeta(
-              "view",
-              state.plugins.find((p) => p.spec.key === findReplacePluginKey)
-                ?.spec?.view
-            );
+            tr.setMeta("view", view);
             tr.setMeta(findReplacePluginKey, { action });
           }
           return true;
@@ -71,17 +62,13 @@ const SearchReplacePlugin = Extension.create({
 
       findPrevious:
         () =>
-        ({ tr, dispatch, state }) => {
+        ({ tr, dispatch, view }) => {
           if (dispatch) {
             const action: FindReplaceAction = {
               type: "NAVIGATE",
               direction: -1,
             };
-            tr.setMeta(
-              "view",
-              state.plugins.find((p) => p.spec.key === findReplacePluginKey)
-                ?.spec?.view
-            );
+            tr.setMeta("view", view);
             tr.setMeta(findReplacePluginKey, { action });
           }
           return true;
@@ -96,18 +83,14 @@ const SearchReplacePlugin = Extension.create({
             return false; // 如果没有激活的匹配项，则不执行任何操作
           }
 
-          const { from, to } =
-            pluginState.matches[pluginState.activeMatchIndex];
+          const { from, to } = pluginState.matches[pluginState.activeMatchIndex];
 
           // 2. 创建一个新的事务来执行文本替换
           const tr = state.tr;
           tr.insertText(replacement, from, to);
 
           // 3. 更新选区，将光标移动到替换后的文本末尾
-          const newSelection = TextSelection.create(
-            tr.doc,
-            to + (replacement.length - (to - from))
-          );
+          const newSelection = TextSelection.create(tr.doc, to + (replacement.length - (to - from)));
           tr.setSelection(newSelection);
 
           // 4. Dispatch 这个事务，这将更新编辑器的文档和视图

@@ -22,7 +22,7 @@ const findReplacePlugin = () => {
                     isPanelOpen: false,
                 };
             },
-            apply(tr, prevState, state) {
+            apply(tr, prevState) {
                 const meta = tr.getMeta(exports.findReplacePluginKey);
                 const action = meta === null || meta === void 0 ? void 0 : meta.action;
                 if (!action) {
@@ -98,17 +98,13 @@ const findReplacePlugin = () => {
         props: {
             decorations(state) {
                 const pluginState = exports.findReplacePluginKey.getState(state);
-                if (!pluginState ||
-                    !pluginState.query ||
-                    pluginState.matches.length === 0) {
+                if (!pluginState || !pluginState.query || pluginState.matches.length === 0) {
                     return prosemirror_view_1.DecorationSet.empty;
                 }
                 const decorations = pluginState.matches.map((match, index) => {
                     const isActive = index === pluginState.activeMatchIndex;
                     return prosemirror_view_1.Decoration.inline(match.from, match.to, {
-                        class: isActive
-                            ? `${exports.HIGHLIGHT_CLASS} ${exports.ACTIVE_HIGHLIGHT_CLASS}`
-                            : exports.HIGHLIGHT_CLASS,
+                        class: isActive ? `${exports.HIGHLIGHT_CLASS} ${exports.ACTIVE_HIGHLIGHT_CLASS}` : exports.HIGHLIGHT_CLASS,
                     }, { inclusive: true });
                 });
                 return prosemirror_view_1.DecorationSet.create(state.doc, decorations);
