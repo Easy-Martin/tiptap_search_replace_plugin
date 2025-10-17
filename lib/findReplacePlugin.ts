@@ -2,6 +2,7 @@
 import { Plugin, PluginKey, TextSelection } from "prosemirror-state";
 import { Decoration, DecorationSet, EditorView } from "prosemirror-view";
 import { Node } from "prosemirror-model";
+import { nextTick } from "./util";
 
 // --- 类型定义 ---
 export type FindReplaceAction =
@@ -18,10 +19,8 @@ export interface FindReplaceState {
   isPanelOpen: boolean;
 }
 
-// --- 插件实现 ---
 export const findReplacePluginKey = new PluginKey<FindReplaceState>("findReplace");
 
-// 生成随机 CSS 类名以避免冲突
 const HIGHLIGHT_BASE_CLASS = "find-replace-highlight";
 export const HIGHLIGHT_CLASS = HIGHLIGHT_BASE_CLASS;
 export const ACTIVE_HIGHLIGHT_CLASS = `${HIGHLIGHT_BASE_CLASS}-active`;
@@ -32,14 +31,8 @@ export const findReplacePlugin = () => {
 
     state: {
       init(): FindReplaceState {
-        return {
-          query: "",
-          matches: [],
-          activeMatchIndex: -1,
-          isPanelOpen: false,
-        };
+        return { query: "", matches: [], activeMatchIndex: -1, isPanelOpen: false };
       },
-
       apply(tr, prevState) {
         const meta = tr.getMeta(findReplacePluginKey);
         const action: FindReplaceAction | undefined = meta?.action;
@@ -52,13 +45,7 @@ export const findReplacePlugin = () => {
           case "FIND": {
             const { query } = action;
             const matches = findMatchesInDocument(tr.doc, query);
-
-            return {
-              ...prevState,
-              query,
-              matches,
-              activeMatchIndex: matches.length > 0 ? 0 : -1,
-            };
+            return { ...prevState, query, matches, activeMatchIndex: matches.length > 0 ? 0 : -1 };
           }
 
           case "NAVIGATE": {
@@ -70,55 +57,36 @@ export const findReplacePlugin = () => {
             if (newIndex >= prevState.matches.length) newIndex = 0;
 
             // 滚动到新匹配项
-            setTimeout(() => {
+            nextTick(() => {
               const view = tr.getMeta("view") as EditorView | undefined;
-              if (view) {
-                const match = prevState.matches[newIndex];
+              if (!view) return;
+              const match = prevState.matches[newIndex];
 
-                // --- 这是修复后的正确代码 ---
-                const $from = view.state.doc.resolve(match.from);
-                const $to = view.state.doc.resolve(match.to);
-                const newSelection = new TextSelection($from, $to);
-                view.dispatch(view.state.tr.setSelection(newSelection));
-                // --- 修复结束 ---
+              // --- 这是修复后的正确代码 ---
+              const $from = view.state.doc.resolve(match.from);
+              const $to = view.state.doc.resolve(match.to);
+              const newSelection = new TextSelection($from, $to);
+              view.dispatch(view.state.tr.setSelection(newSelection));
 
-                // 延迟执行滚动操作，确保DOM已更新
-                setTimeout(() => {
-                  const element = document.querySelector(`.${ACTIVE_HIGHLIGHT_CLASS}`);
-                  if (element) {
-                    // 使用更可靠的滚动设置
-                    element.scrollIntoView({
-                      behavior: "smooth",
-                      block: "center", // 改为center以确保元素在视图中央
-                    });
-                  }
-                }, 100); // 增加延迟时间确保DOM更新完成
-              }
-            }, 0);
+              // 延迟执行滚动操作，确保DOM已更新
+              setTimeout(() => {
+                const element = document.querySelector(`.${ACTIVE_HIGHLIGHT_CLASS}`);
+                element && element.scrollIntoView({ behavior: "smooth", block: "center" });
+              }, 100); // 增加延迟时间确保DOM更新完成
+            });
 
-            return {
-              ...prevState,
-              activeMatchIndex: newIndex,
-            };
+            return { ...prevState, activeMatchIndex: newIndex };
           }
-
           case "REPLACE": {
-            return {
-              ...prevState,
-            };
+            return { ...prevState };
           }
 
           case "REPLACE_ALL": {
-            return {
-              ...prevState,
-            };
+            return { ...prevState };
           }
 
           case "CLOSE_PANEL":
-            return {
-              ...prevState,
-              isPanelOpen: false,
-            };
+            return { ...prevState, isPanelOpen: false };
         }
       },
     },
@@ -126,21 +94,13 @@ export const findReplacePlugin = () => {
     props: {
       decorations(state) {
         const pluginState = findReplacePluginKey.getState(state);
-
         if (!pluginState || !pluginState.query || pluginState.matches.length === 0) {
           return DecorationSet.empty;
         }
-
         const decorations = pluginState.matches.map((match, index) => {
           const isActive = index === pluginState.activeMatchIndex;
-          return Decoration.inline(
-            match.from,
-            match.to,
-            {
-              class: isActive ? `${HIGHLIGHT_CLASS} ${ACTIVE_HIGHLIGHT_CLASS}` : HIGHLIGHT_CLASS,
-            },
-            { inclusive: true }
-          );
+          const classname = isActive ? `${HIGHLIGHT_CLASS} ${ACTIVE_HIGHLIGHT_CLASS}` : HIGHLIGHT_CLASS;
+          return Decoration.inline(match.from, match.to, { class: classname }, { inclusive: true });
         });
 
         return DecorationSet.create(state.doc, decorations);
@@ -149,11 +109,7 @@ export const findReplacePlugin = () => {
       handleKeyDown(view: EditorView, event: KeyboardEvent) {
         const pluginState = findReplacePluginKey.getState(view.state);
         if (pluginState?.isPanelOpen && event.key === "Escape") {
-          view.dispatch(
-            view.state.tr.setMeta(findReplacePluginKey, {
-              action: { type: "CLOSE_PANEL" },
-            })
-          );
+          view.dispatch(view.state.tr.setMeta(findReplacePluginKey, { action: { type: "CLOSE_PANEL" } }));
           return true;
         }
         return false;

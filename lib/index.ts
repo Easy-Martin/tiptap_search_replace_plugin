@@ -2,6 +2,7 @@
 import { Extension } from "@tiptap/core";
 import { findReplacePlugin, findReplacePluginKey, FindReplaceAction } from "./findReplacePlugin";
 import { TextSelection } from "@tiptap/pm/state";
+import { nextTick } from "./util";
 
 declare module "@tiptap/core" {
   interface Commands<ReturnType> {
@@ -48,11 +49,7 @@ const SearchReplacePlugin = Extension.create({
         () =>
         ({ tr, dispatch, view }) => {
           if (dispatch) {
-            const action: FindReplaceAction = {
-              type: "NAVIGATE",
-              direction: 1,
-            };
-            tr;
+            const action: FindReplaceAction = { type: "NAVIGATE", direction: 1 };
             // 传递 view 以便在插件中使用
             tr.setMeta("view", view);
             tr.setMeta(findReplacePluginKey, { action });
@@ -64,10 +61,7 @@ const SearchReplacePlugin = Extension.create({
         () =>
         ({ tr, dispatch, view }) => {
           if (dispatch) {
-            const action: FindReplaceAction = {
-              type: "NAVIGATE",
-              direction: -1,
-            };
+            const action: FindReplaceAction = { type: "NAVIGATE", direction: -1 };
             tr.setMeta("view", view);
             tr.setMeta(findReplacePluginKey, { action });
           }
@@ -100,9 +94,7 @@ const SearchReplacePlugin = Extension.create({
 
           // 5. (异步) 替换完成后，立即使用相同的查询词重新查找
           // 使用 setTimeout 确保在 DOM 更新后再执行，避免竞态条件
-          setTimeout(() => {
-            this.editor.commands.find(pluginState.query);
-          }, 0);
+          nextTick(() => this.editor.commands.find(pluginState.query));
 
           return true;
         },
@@ -128,9 +120,7 @@ const SearchReplacePlugin = Extension.create({
           }
 
           // 替换全部后，清空查找状态
-          setTimeout(() => {
-            this.editor.commands.find("");
-          }, 0);
+          nextTick(() => this.editor.commands.find(""));
 
           return true;
         },
@@ -142,10 +132,8 @@ const SearchReplacePlugin = Extension.create({
             const action: FindReplaceAction = { type: "CLOSE_PANEL" };
             tr.setMeta(findReplacePluginKey, { action });
           }
+          nextTick(() => this.editor.commands.find(""));
 
-          setTimeout(() => {
-            this.editor.commands.find("");
-          }, 0);
           return true;
         },
     };
