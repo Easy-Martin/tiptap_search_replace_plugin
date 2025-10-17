@@ -107,19 +107,20 @@ const SearchReplacePlugin = core_1.Extension.create({
                 (0, util_1.nextTick)(() => this.editor.commands.find(""));
                 return true;
             },
-            closeFindReplace: () => ({ tr, dispatch }) => {
+            closeFindReplace: () => ({ tr, dispatch, editor }) => {
                 if (dispatch) {
                     const action = { type: "CLOSE_PANEL" };
                     tr.setMeta(findReplacePlugin_1.findReplacePluginKey, { action });
                 }
-                (0, util_1.nextTick)(() => this.editor.commands.find(""));
+                (0, util_1.nextTick)(() => editor.commands.find(""));
                 return true;
             },
-            openFindReplace: () => ({ tr, dispatch }) => {
+            openFindReplace: () => ({ tr, dispatch, editor }) => {
                 if (dispatch) {
                     const action = { type: "OPEN_PANEL" };
                     tr.setMeta(findReplacePlugin_1.findReplacePluginKey, { action });
                 }
+                (0, util_1.nextTick)(() => editor.commands.find(""));
                 return true;
             },
             toggleFindReplace: () => ({ state, dispatch, tr, editor }) => {

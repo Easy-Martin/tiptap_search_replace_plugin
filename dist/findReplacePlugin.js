@@ -25,7 +25,10 @@ const findReplacePlugin = () => {
                 switch (action.type) {
                     case "FIND": {
                         const { query } = action;
-                        const matches = findMatchesInDocument(tr.doc, query);
+                        let matches = [];
+                        if (query) {
+                            matches = findMatchesInDocument(tr.doc, query);
+                        }
                         return { ...prevState, query, matches, activeMatchIndex: matches.length > 0 ? 0 : -1 };
                     }
                     case "NAVIGATE": {
@@ -72,6 +75,9 @@ const findReplacePlugin = () => {
         props: {
             decorations(state) {
                 const pluginState = exports.findReplacePluginKey.getState(state);
+                if (!(pluginState === null || pluginState === void 0 ? void 0 : pluginState.isPanelOpen)) {
+                    return prosemirror_view_1.DecorationSet.empty;
+                }
                 if (!pluginState || !pluginState.query || pluginState.matches.length === 0) {
                     return prosemirror_view_1.DecorationSet.empty;
                 }
