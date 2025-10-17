@@ -45,6 +45,15 @@ const editor = new Editor({
   // ... 其他配置
 });
 
+// 打开查找替换面板
+editor.commands.openFindReplace();
+
+// 关闭查找替换面板
+editor.commands.closeFindReplace();
+
+// 切换查找替换面板
+editor.commands.toggleFindReplace();
+
 // 搜索文本
 editor.commands.find('要搜索的文本');
 
@@ -59,6 +68,7 @@ editor.commands.replace('替换后的文本');
 
 // 替换所有匹配项
 editor.commands.replaceAll('替换后的文本');
+
 ```
 
 ## API
@@ -70,6 +80,9 @@ editor.commands.replaceAll('替换后的文本');
 - `findPrevious()`: 查找上一个匹配项
 - `replace(text: string)`: 替换当前匹配项
 - `replaceAll(text: string)`: 替换所有匹配项
+- `toggleFindReplace()`: 打开或关闭查找替换面板
+- `closeFindReplace()`: 关闭查找替换面板
+- `openFindReplace()`: 打开查找替换面板
 
 ## Style
 
