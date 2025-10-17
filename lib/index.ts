@@ -169,21 +169,22 @@ const SearchReplacePlugin = Extension.create({
         },
       closeFindReplace:
         () =>
-        ({ tr, dispatch }) => {
+        ({ tr, dispatch, editor }) => {
           if (dispatch) {
             const action: FindReplaceAction = { type: "CLOSE_PANEL" };
             tr.setMeta(findReplacePluginKey, { action });
           }
-          nextTick(() => this.editor.commands.find(""));
+          nextTick(() => editor.commands.find(""));
           return true;
         },
       openFindReplace:
         () =>
-        ({ tr, dispatch }) => {
+        ({ tr, dispatch, editor }) => {
           if (dispatch) {
             const action: FindReplaceAction = { type: "OPEN_PANEL" };
             tr.setMeta(findReplacePluginKey, { action });
           }
+          nextTick(() => editor.commands.find(""));
           return true;
         },
       toggleFindReplace:
