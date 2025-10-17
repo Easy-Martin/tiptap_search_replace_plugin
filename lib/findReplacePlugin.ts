@@ -10,7 +10,8 @@ export type FindReplaceAction =
   | { type: "NAVIGATE"; direction: 1 | -1 }
   | { type: "REPLACE"; replacement: string }
   | { type: "REPLACE_ALL"; replacement: string }
-  | { type: "CLOSE_PANEL" };
+  | { type: "CLOSE_PANEL" }
+  | { type: "OPEN_PANEL" };
 
 export interface FindReplaceState {
   query: string;
@@ -84,6 +85,9 @@ export const findReplacePlugin = () => {
           case "REPLACE_ALL": {
             return { ...prevState };
           }
+
+          case "OPEN_PANEL":
+            return { ...prevState, isPanelOpen: true };
 
           case "CLOSE_PANEL":
             return { ...prevState, isPanelOpen: false };

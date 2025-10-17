@@ -18,7 +18,17 @@ declare module "@tiptap/core" {
       replaceAll: (replacement: string) => ReturnType;
 
       closeFindReplace: () => ReturnType;
+
+      openFindReplace: () => ReturnType;
+
+      toggleFindReplace: () => ReturnType;
     };
+  }
+  interface EditorEvents {
+    // 声明你的自定义事件，格式：[事件名]: 参数类型
+    "findReplace:toggleFindReplace": boolean;
+    // 可以添加多个自定义事件
+    // '自定义事件名2': 参数类型
   }
 }
 
@@ -32,12 +42,27 @@ const SearchReplacePlugin = Extension.create({
   addProseMirrorPlugins() {
     return [findReplacePlugin()];
   },
+  addKeyboardShortcuts() {
+    const keyboard = this.options.openPanel;
+    return {
+      [keyboard]: ({ editor }) => {
+        editor.chain().toggleFindReplace().run();
+        return true;
+      },
+    };
+  },
 
   addCommands() {
     return {
       find:
         (query: string) =>
-        ({ tr, dispatch }) => {
+        ({ tr, dispatch, state }) => {
+          const pluginState = findReplacePluginKey.getState(state);
+
+          if (!pluginState?.isPanelOpen) {
+            return false;
+          }
+
           if (dispatch) {
             const action: FindReplaceAction = { type: "FIND", query };
             tr.setMeta(findReplacePluginKey, { action });
@@ -47,7 +72,12 @@ const SearchReplacePlugin = Extension.create({
 
       findNext:
         () =>
-        ({ tr, dispatch, view }) => {
+        ({ tr, dispatch, view, state }) => {
+          const pluginState = findReplacePluginKey.getState(state);
+
+          if (!pluginState?.isPanelOpen) {
+            return false;
+          }
           if (dispatch) {
             const action: FindReplaceAction = { type: "NAVIGATE", direction: 1 };
             // 传递 view 以便在插件中使用
@@ -59,7 +89,12 @@ const SearchReplacePlugin = Extension.create({
 
       findPrevious:
         () =>
-        ({ tr, dispatch, view }) => {
+        ({ tr, dispatch, view, state }) => {
+          const pluginState = findReplacePluginKey.getState(state);
+
+          if (!pluginState?.isPanelOpen) {
+            return false;
+          }
           if (dispatch) {
             const action: FindReplaceAction = { type: "NAVIGATE", direction: -1 };
             tr.setMeta("view", view);
@@ -73,6 +108,11 @@ const SearchReplacePlugin = Extension.create({
         ({ state, dispatch }) => {
           // 1. 从插件状态中获取当前的匹配信息
           const pluginState = findReplacePluginKey.getState(state);
+
+          if (!pluginState?.isPanelOpen) {
+            return false;
+          }
+
           if (!pluginState || pluginState.activeMatchIndex === -1) {
             return false; // 如果没有激活的匹配项，则不执行任何操作
           }
@@ -104,6 +144,11 @@ const SearchReplacePlugin = Extension.create({
         (replacement: string) =>
         ({ state, dispatch }) => {
           const pluginState = findReplacePluginKey.getState(state);
+
+          if (!pluginState?.isPanelOpen) {
+            return false;
+          }
+
           if (!pluginState || pluginState.matches.length === 0) {
             return false;
           }
@@ -111,9 +156,7 @@ const SearchReplacePlugin = Extension.create({
           const tr = state.tr;
           // 从后往前替换，避免位置偏移
           const reversedMatches = [...pluginState.matches].reverse();
-          reversedMatches.forEach(({ from, to }) => {
-            tr.insertText(replacement, from, to);
-          });
+          reversedMatches.forEach(({ from, to }) => tr.insertText(replacement, from, to));
 
           if (dispatch) {
             dispatch(tr);
@@ -124,7 +167,6 @@ const SearchReplacePlugin = Extension.create({
 
           return true;
         },
-
       closeFindReplace:
         () =>
         ({ tr, dispatch }) => {
@@ -133,6 +175,26 @@ const SearchReplacePlugin = Extension.create({
             tr.setMeta(findReplacePluginKey, { action });
           }
           nextTick(() => this.editor.commands.find(""));
+          return true;
+        },
+      openFindReplace:
+        () =>
+        ({ tr, dispatch }) => {
+          if (dispatch) {
+            const action: FindReplaceAction = { type: "OPEN_PANEL" };
+            tr.setMeta(findReplacePluginKey, { action });
+          }
+          return true;
+        },
+      toggleFindReplace:
+        () =>
+        ({ state, dispatch, tr, editor }) => {
+          const pluginState = findReplacePluginKey.getState(state);
+          if (dispatch) {
+            const action: FindReplaceAction = { type: pluginState?.isPanelOpen ? "CLOSE_PANEL" : "OPEN_PANEL" };
+            tr.setMeta(findReplacePluginKey, { action });
+          }
+          editor.emit("findReplace:toggleFindReplace", !pluginState?.isPanelOpen);
 
           return true;
         },

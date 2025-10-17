@@ -86,6 +86,56 @@ editor.commands.replaceAll('替换后的文本');
 
 ## 开发
 
+### 配置
+
+你可以通过 `openPanel` 选项自定义打开查找替换面板的快捷键。默认值为 `Mod-f`（即按下 `Ctrl+f` 或 `Cmd+f`）。
+
+```typescript
+const editor = new Editor({
+  extensions: [
+    // ... 其他扩展
+    SearchReplacePlugin.configure({
+      openPanel: 'Mod-f',
+    }),
+  ],
+  // ... 其他配置
+});
+```
+
+### 实例
+
+```typescript
+import { Editor } from '@tiptap/core';
+import { SearchReplacePlugin } from 'tiptap_search_replace_plugin';
+
+const editor = new Editor({
+  extensions: [
+    // ... 其他扩展
+    SearchReplacePlugin,
+  ],
+  // ... 其他配置
+});
+```
+
+### Event
+
+该插件触发以下事件：
+
+- `findReplace:toggleFindReplace(isOpen: boolean)`: 查找替换面板打开或关闭时触发
+
+你可以使用 `on` 方法监听这些事件，例如：
+
+```jsx
+useEffect(() => {
+  editor.on("findReplace:toggleFindReplace", (isOpen) => updateState({ open: isOpen }));
+  return () => {
+    editor.off("findReplace:toggleFindReplace");
+  };
+}, []);
+```
+
+
+
 ### 构建项目
 
 ```bash

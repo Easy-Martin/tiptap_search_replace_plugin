@@ -1,6 +1,6 @@
 {
   "name": "tiptap_search_replace_plugin",
-  "version": "0.0.7",
+  "version": "0.0.8",
   "description": "A search and replace plugin for Tiptap editor",
   "main": "dist/index.js",
   "module": "dist/index.js",

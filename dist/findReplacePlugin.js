@@ -4,9 +4,8 @@ exports.findReplacePlugin = exports.ACTIVE_HIGHLIGHT_CLASS = exports.HIGHLIGHT_C
 // findReplacePlugin.ts
 const prosemirror_state_1 = require("prosemirror-state");
 const prosemirror_view_1 = require("prosemirror-view");
-// --- 插件实现 ---
+const util_1 = require("./util");
 exports.findReplacePluginKey = new prosemirror_state_1.PluginKey("findReplace");
-// 生成随机 CSS 类名以避免冲突
 const HIGHLIGHT_BASE_CLASS = "find-replace-highlight";
 exports.HIGHLIGHT_CLASS = HIGHLIGHT_BASE_CLASS;
 exports.ACTIVE_HIGHLIGHT_CLASS = `${HIGHLIGHT_BASE_CLASS}-active`;
@@ -15,12 +14,7 @@ const findReplacePlugin = () => {
         key: exports.findReplacePluginKey,
         state: {
             init() {
-                return {
-                    query: "",
-                    matches: [],
-                    activeMatchIndex: -1,
-                    isPanelOpen: false,
-                };
+                return { query: "", matches: [], activeMatchIndex: -1, isPanelOpen: false };
             },
             apply(tr, prevState) {
                 const meta = tr.getMeta(exports.findReplacePluginKey);
@@ -32,12 +26,7 @@ const findReplacePlugin = () => {
                     case "FIND": {
                         const { query } = action;
                         const matches = findMatchesInDocument(tr.doc, query);
-                        return {
-                            ...prevState,
-                            query,
-                            matches,
-                            activeMatchIndex: matches.length > 0 ? 0 : -1,
-                        };
+                        return { ...prevState, query, matches, activeMatchIndex: matches.length > 0 ? 0 : -1 };
                     }
                     case "NAVIGATE": {
                         const { direction } = action;
@@ -49,49 +38,34 @@ const findReplacePlugin = () => {
                         if (newIndex >= prevState.matches.length)
                             newIndex = 0;
                         // 滚动到新匹配项
-                        setTimeout(() => {
+                        (0, util_1.nextTick)(() => {
                             const view = tr.getMeta("view");
-                            if (view) {
-                                const match = prevState.matches[newIndex];
-                                // --- 这是修复后的正确代码 ---
-                                const $from = view.state.doc.resolve(match.from);
-                                const $to = view.state.doc.resolve(match.to);
-                                const newSelection = new prosemirror_state_1.TextSelection($from, $to);
-                                view.dispatch(view.state.tr.setSelection(newSelection));
-                                // --- 修复结束 ---
-                                // 延迟执行滚动操作，确保DOM已更新
-                                setTimeout(() => {
-                                    const element = document.querySelector(`.${exports.ACTIVE_HIGHLIGHT_CLASS}`);
-                                    if (element) {
-                                        // 使用更可靠的滚动设置
-                                        element.scrollIntoView({
-                                            behavior: "smooth",
-                                            block: "center", // 改为center以确保元素在视图中央
-                                        });
-                                    }
-                                }, 100); // 增加延迟时间确保DOM更新完成
-                            }
-                        }, 0);
-                        return {
-                            ...prevState,
-                            activeMatchIndex: newIndex,
-                        };
+                            if (!view)
+                                return;
+                            const match = prevState.matches[newIndex];
+                            // --- 这是修复后的正确代码 ---
+                            const $from = view.state.doc.resolve(match.from);
+                            const $to = view.state.doc.resolve(match.to);
+                            const newSelection = new prosemirror_state_1.TextSelection($from, $to);
+                            view.dispatch(view.state.tr.setSelection(newSelection));
+                            // 延迟执行滚动操作，确保DOM已更新
+                            setTimeout(() => {
+                                const element = document.querySelector(`.${exports.ACTIVE_HIGHLIGHT_CLASS}`);
+                                element && element.scrollIntoView({ behavior: "smooth", block: "center" });
+                            }, 100); // 增加延迟时间确保DOM更新完成
+                        });
+                        return { ...prevState, activeMatchIndex: newIndex };
                     }
                     case "REPLACE": {
-                        return {
-                            ...prevState,
-                        };
+                        return { ...prevState };
                     }
                     case "REPLACE_ALL": {
-                        return {
-                            ...prevState,
-                        };
+                        return { ...prevState };
                     }
+                    case "OPEN_PANEL":
+                        return { ...prevState, isPanelOpen: true };
                     case "CLOSE_PANEL":
-                        return {
-                            ...prevState,
-                            isPanelOpen: false,
-                        };
+                        return { ...prevState, isPanelOpen: false };
                 }
             },
         },
@@ -103,18 +77,15 @@ const findReplacePlugin = () => {
                 }
                 const decorations = pluginState.matches.map((match, index) => {
                     const isActive = index === pluginState.activeMatchIndex;
-                    return prosemirror_view_1.Decoration.inline(match.from, match.to, {
-                        class: isActive ? `${exports.HIGHLIGHT_CLASS} ${exports.ACTIVE_HIGHLIGHT_CLASS}` : exports.HIGHLIGHT_CLASS,
-                    }, { inclusive: true });
+                    const classname = isActive ? `${exports.HIGHLIGHT_CLASS} ${exports.ACTIVE_HIGHLIGHT_CLASS}` : exports.HIGHLIGHT_CLASS;
+                    return prosemirror_view_1.Decoration.inline(match.from, match.to, { class: classname }, { inclusive: true });
                 });
                 return prosemirror_view_1.DecorationSet.create(state.doc, decorations);
             },
             handleKeyDown(view, event) {
                 const pluginState = exports.findReplacePluginKey.getState(view.state);
                 if ((pluginState === null || pluginState === void 0 ? void 0 : pluginState.isPanelOpen) && event.key === "Escape") {
-                    view.dispatch(view.state.tr.setMeta(exports.findReplacePluginKey, {
-                        action: { type: "CLOSE_PANEL" },
-                    }));
+                    view.dispatch(view.state.tr.setMeta(exports.findReplacePluginKey, { action: { type: "CLOSE_PANEL" } }));
                     return true;
                 }
                 return false;

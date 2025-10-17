@@ -9,7 +9,12 @@ declare module "@tiptap/core" {
             replace: (replacement: string) => ReturnType;
             replaceAll: (replacement: string) => ReturnType;
             closeFindReplace: () => ReturnType;
+            openFindReplace: () => ReturnType;
+            toggleFindReplace: () => ReturnType;
         };
+    }
+    interface EditorEvents {
+        "findReplace:toggleFindReplace": boolean;
     }
 }
 declare const SearchReplacePlugin: Extension<any, any>;

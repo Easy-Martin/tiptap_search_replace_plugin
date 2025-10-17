@@ -13,6 +13,8 @@ export type FindReplaceAction = {
     replacement: string;
 } | {
     type: "CLOSE_PANEL";
+} | {
+    type: "OPEN_PANEL";
 };
 export interface FindReplaceState {
     query: string;
