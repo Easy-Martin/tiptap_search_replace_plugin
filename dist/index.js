@@ -62,7 +62,7 @@ const SearchReplacePlugin = core_1.Extension.create({
                 }
                 return true;
             },
-            replace: (replacement) => ({ state, dispatch }) => {
+            replace: (replacement) => ({ state, dispatch, editor }) => {
                 // 1. 从插件状态中获取当前的匹配信息
                 const pluginState = findReplacePlugin_1.findReplacePluginKey.getState(state);
                 if (!(pluginState === null || pluginState === void 0 ? void 0 : pluginState.isPanelOpen)) {
@@ -84,11 +84,11 @@ const SearchReplacePlugin = core_1.Extension.create({
                 }
                 // 5. (异步) 替换完成后，立即使用相同的查询词重新查找
                 // 使用 setTimeout 确保在 DOM 更新后再执行，避免竞态条件
-                (0, util_1.nextTick)(() => this.editor.commands.find(pluginState.query));
+                (0, util_1.nextTick)(() => editor.commands.find(pluginState.query));
                 return true;
             },
             // ... replaceAll 命令也需要类似处理，但逻辑更简单
-            replaceAll: (replacement) => ({ state, dispatch }) => {
+            replaceAll: (replacement) => ({ state, dispatch, editor }) => {
                 const pluginState = findReplacePlugin_1.findReplacePluginKey.getState(state);
                 if (!(pluginState === null || pluginState === void 0 ? void 0 : pluginState.isPanelOpen)) {
                     return false;
@@ -104,7 +104,7 @@ const SearchReplacePlugin = core_1.Extension.create({
                     dispatch(tr);
                 }
                 // 替换全部后，清空查找状态
-                (0, util_1.nextTick)(() => this.editor.commands.find(""));
+                (0, util_1.nextTick)(() => editor.commands.find(""));
                 return true;
             },
             closeFindReplace: () => ({ tr, dispatch, editor }) => {

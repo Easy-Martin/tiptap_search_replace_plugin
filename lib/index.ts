@@ -105,7 +105,7 @@ const SearchReplacePlugin = Extension.create({
 
       replace:
         (replacement: string) =>
-        ({ state, dispatch }) => {
+        ({ state, dispatch, editor }) => {
           // 1. 从插件状态中获取当前的匹配信息
           const pluginState = findReplacePluginKey.getState(state);
 
@@ -134,7 +134,7 @@ const SearchReplacePlugin = Extension.create({
 
           // 5. (异步) 替换完成后，立即使用相同的查询词重新查找
           // 使用 setTimeout 确保在 DOM 更新后再执行，避免竞态条件
-          nextTick(() => this.editor.commands.find(pluginState.query));
+          nextTick(() => editor.commands.find(pluginState.query));
 
           return true;
         },
@@ -142,7 +142,7 @@ const SearchReplacePlugin = Extension.create({
       // ... replaceAll 命令也需要类似处理，但逻辑更简单
       replaceAll:
         (replacement: string) =>
-        ({ state, dispatch }) => {
+        ({ state, dispatch, editor }) => {
           const pluginState = findReplacePluginKey.getState(state);
 
           if (!pluginState?.isPanelOpen) {
@@ -163,7 +163,7 @@ const SearchReplacePlugin = Extension.create({
           }
 
           // 替换全部后，清空查找状态
-          nextTick(() => this.editor.commands.find(""));
+          nextTick(() => editor.commands.find(""));
 
           return true;
         },
