@@ -103,8 +103,8 @@ function MenuBar({ editor }: { editor: Editor }) {
         </button>
       </div>
       <div className="input-group">
-        <Input placeholder="Search" value={search} onChange={(e) => setSearch(e.target.value)} />
-        <Input placeholder="Replace" value={replace} onChange={(e) => setReplace(e.target.value)} />
+        <Input placeholder="Search" value={search} onChange={(e: any) => setSearch(e.target.value)} />
+        <Input placeholder="Replace" value={replace} onChange={(e: any) => setReplace(e.target.value)} />
         <Button
           onClick={() => {
             editor.chain().focus().openFindReplace().run();
