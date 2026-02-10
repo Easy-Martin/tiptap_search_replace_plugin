@@ -106,9 +106,9 @@ function MenuBar({ editor }: { editor: Editor }) {
         <Input placeholder="Search" value={search} onChange={(e: any) => setSearch(e.target.value)} />
         <Input placeholder="Replace" value={replace} onChange={(e: any) => setReplace(e.target.value)} />
         <Button
-          onClick={() => {
-            editor.chain().focus().openFindReplace().run();
-            setTimeout(() => editor.chain().focus().find(search).run(), 200);
+          onClick={async () => {
+            await editor.chain().focus().openFindReplace().run();
+            setTimeout(() => editor.chain().focus().find(search).run(), 0);
           }}
         >
           Find
