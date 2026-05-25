@@ -8,8 +8,6 @@ import { nextTick } from "./util";
 export type FindReplaceAction =
   | { type: "FIND"; query: string }
   | { type: "NAVIGATE"; direction: 1 | -1 }
-  | { type: "REPLACE"; replacement: string }
-  | { type: "REPLACE_ALL"; replacement: string }
   | { type: "CLOSE_PANEL" }
   | { type: "OPEN_PANEL" };
 
@@ -66,27 +64,18 @@ export const findReplacePlugin = () => {
               if (!view) return;
               const match = prevState.matches[newIndex];
 
-              // --- 这是修复后的正确代码 ---
               const $from = view.state.doc.resolve(match.from);
               const $to = view.state.doc.resolve(match.to);
               const newSelection = new TextSelection($from, $to);
               view.dispatch(view.state.tr.setSelection(newSelection));
 
-              // 延迟执行滚动操作，确保DOM已更新
-              setTimeout(() => {
+              requestAnimationFrame(() => {
                 const element = document.querySelector(`.${ACTIVE_HIGHLIGHT_CLASS}`);
-                element && element.scrollIntoView({ behavior: "smooth", block: "center" });
-              }, 100); // 增加延迟时间确保DOM更新完成
+                element?.scrollIntoView({ behavior: "smooth", block: "center" });
+              });
             });
 
             return { ...prevState, activeMatchIndex: newIndex };
-          }
-          case "REPLACE": {
-            return { ...prevState };
-          }
-
-          case "REPLACE_ALL": {
-            return { ...prevState };
           }
 
           case "OPEN_PANEL":
