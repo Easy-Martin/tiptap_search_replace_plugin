@@ -16,7 +16,7 @@
     "antd": "^5.27.6",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
-    "tiptap_search_replace_plugin": "^0.0.9"
+    "tiptap_search_replace_plugin": "^0.0.11"
   },
   "devDependencies": {
     "@eslint/js": "^9.36.0",

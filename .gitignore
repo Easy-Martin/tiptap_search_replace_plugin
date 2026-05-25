@@ -4,3 +4,7 @@ logs
 node_modules
 
 .codegraph/
+
+.pnpm-store/
+
+.DS_Store
