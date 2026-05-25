@@ -1,7 +1,7 @@
 // findReplacePlugin.ts
-import { Plugin, PluginKey, TextSelection } from "prosemirror-state";
-import { Decoration, DecorationSet, EditorView } from "prosemirror-view";
-import { Node } from "prosemirror-model";
+import { Plugin, PluginKey, TextSelection } from "@tiptap/pm/state";
+import { Decoration, DecorationSet, EditorView } from "@tiptap/pm/view";
+import { Node } from "@tiptap/pm/model";
 import { nextTick } from "./util";
 
 // --- 类型定义 ---
