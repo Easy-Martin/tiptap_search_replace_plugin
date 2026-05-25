@@ -2,15 +2,15 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.findReplacePlugin = exports.ACTIVE_HIGHLIGHT_CLASS = exports.HIGHLIGHT_CLASS = exports.findReplacePluginKey = void 0;
 // findReplacePlugin.ts
-const prosemirror_state_1 = require("prosemirror-state");
-const prosemirror_view_1 = require("prosemirror-view");
+const state_1 = require("@tiptap/pm/state");
+const view_1 = require("@tiptap/pm/view");
 const util_1 = require("./util");
-exports.findReplacePluginKey = new prosemirror_state_1.PluginKey("findReplace");
+exports.findReplacePluginKey = new state_1.PluginKey("findReplace");
 const HIGHLIGHT_BASE_CLASS = "find-replace-highlight";
 exports.HIGHLIGHT_CLASS = HIGHLIGHT_BASE_CLASS;
 exports.ACTIVE_HIGHLIGHT_CLASS = `${HIGHLIGHT_BASE_CLASS}-active`;
 const findReplacePlugin = () => {
-    return new prosemirror_state_1.Plugin({
+    return new state_1.Plugin({
         key: exports.findReplacePluginKey,
         state: {
             init() {
@@ -46,24 +46,16 @@ const findReplacePlugin = () => {
                             if (!view)
                                 return;
                             const match = prevState.matches[newIndex];
-                            // --- 这是修复后的正确代码 ---
                             const $from = view.state.doc.resolve(match.from);
                             const $to = view.state.doc.resolve(match.to);
-                            const newSelection = new prosemirror_state_1.TextSelection($from, $to);
+                            const newSelection = new state_1.TextSelection($from, $to);
                             view.dispatch(view.state.tr.setSelection(newSelection));
-                            // 延迟执行滚动操作，确保DOM已更新
-                            setTimeout(() => {
+                            requestAnimationFrame(() => {
                                 const element = document.querySelector(`.${exports.ACTIVE_HIGHLIGHT_CLASS}`);
-                                element && element.scrollIntoView({ behavior: "smooth", block: "center" });
-                            }, 100); // 增加延迟时间确保DOM更新完成
+                                element === null || element === void 0 ? void 0 : element.scrollIntoView({ behavior: "smooth", block: "center" });
+                            });
                         });
                         return { ...prevState, activeMatchIndex: newIndex };
-                    }
-                    case "REPLACE": {
-                        return { ...prevState };
-                    }
-                    case "REPLACE_ALL": {
-                        return { ...prevState };
                     }
                     case "OPEN_PANEL":
                         return { ...prevState, isPanelOpen: true };
@@ -76,17 +68,17 @@ const findReplacePlugin = () => {
             decorations(state) {
                 const pluginState = exports.findReplacePluginKey.getState(state);
                 if (!(pluginState === null || pluginState === void 0 ? void 0 : pluginState.isPanelOpen)) {
-                    return prosemirror_view_1.DecorationSet.empty;
+                    return view_1.DecorationSet.empty;
                 }
                 if (!pluginState || !pluginState.query || pluginState.matches.length === 0) {
-                    return prosemirror_view_1.DecorationSet.empty;
+                    return view_1.DecorationSet.empty;
                 }
                 const decorations = pluginState.matches.map((match, index) => {
                     const isActive = index === pluginState.activeMatchIndex;
                     const classname = isActive ? `${exports.HIGHLIGHT_CLASS} ${exports.ACTIVE_HIGHLIGHT_CLASS}` : exports.HIGHLIGHT_CLASS;
-                    return prosemirror_view_1.Decoration.inline(match.from, match.to, { class: classname }, { inclusive: true });
+                    return view_1.Decoration.inline(match.from, match.to, { class: classname }, { inclusive: true });
                 });
-                return prosemirror_view_1.DecorationSet.create(state.doc, decorations);
+                return view_1.DecorationSet.create(state.doc, decorations);
             },
             handleKeyDown(view, event) {
                 const pluginState = exports.findReplacePluginKey.getState(view.state);

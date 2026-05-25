@@ -1,16 +1,10 @@
-import { Plugin, PluginKey } from "prosemirror-state";
+import { Plugin, PluginKey } from "@tiptap/pm/state";
 export type FindReplaceAction = {
     type: "FIND";
     query: string;
 } | {
     type: "NAVIGATE";
     direction: 1 | -1;
-} | {
-    type: "REPLACE";
-    replacement: string;
-} | {
-    type: "REPLACE_ALL";
-    replacement: string;
 } | {
     type: "CLOSE_PANEL";
 } | {
